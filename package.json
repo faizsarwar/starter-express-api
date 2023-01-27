@@ -1,22 +1,8 @@
 {
-  "name": "starter-express-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cyclic-software/starter-express-api.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/cyclic-software/starter-express-api/issues"
-  },
-  "homepage": "https://github.com/cyclic-software/starter-express-api#readme",
   "dependencies": {
+    "actions-on-google": "^2.14.0",
+    "axios": "^0.21.4",
+    "dialogflow-fulfillment": "^0.6.1",
     "express": "^4.17.1"
   }
 }
