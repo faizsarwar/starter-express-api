@@ -86,6 +86,12 @@ app.post("/webhook",express.json(),(request,response)=>{          //fulfillment 
         agent.add("This is Ryan, Community Manager @nftdropscal")
         agent.add("How can I help you ?")
     }
+    
+    // 
+
+    function FeaturedSpot(agent){
+        agent.add(new Image('https://www.linkpicture.com/q/Screenshot-from-2023-02-01-01-15-09.png'))
+    }
 
     function getLiveSupport(agent){
         agent.add("Hello There !")
@@ -160,6 +166,7 @@ app.post("/webhook",express.json(),(request,response)=>{          //fulfillment 
     intentMap.set("TwitterPost",TwitterPost)
     intentMap.set("TwitterPost - intrested", WebPromoIntrested)
     intentMap.set("TwitterPost - NotIntrested",WebPromoNotIntrested)
+    intentMap.set("verifySubmission -FeaturedSpot",FeaturedSpot)
     agent.handleRequest(intentMap)
 })
 
