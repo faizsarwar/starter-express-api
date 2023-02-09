@@ -1,173 +1,113 @@
 const axios = require('axios');
 const {Suggestions} = require('actions-on-google');
-const {Suggestion} = require("dialogflow-fulfillment");
-const {WebhookClient,Image, Card}=require("dialogflow-fulfillment");
+const {Suggestion, Card} = require("dialogflow-fulfillment");
+const {WebhookClient,Image}=require("dialogflow-fulfillment");
 const { request, response } = require("express");
 const express=require("express");
 const app=express();
 
-
-async function makeRequest(WorkPhone,LastDigits) {
-    const config = {
-        method: 'get',
-        url: `https://track-my-repair.triarom.co.uk/api/v1/work_order/${WorkPhone}?phone=${LastDigits}`,
-        headers: { 'text': 'application/json' }
-    }
-
-    let res = await axios(config)
-    let message = `Status= ${res.data.status} , Message = ${res.data.job_notes[0].text}`
-    return message
-}
-
-async function makeRequestPostCode(postCode) {
-    const config = {
-        method: 'get',
-        url: `https://check-availability.broadband.triarom.co.uk/api/v1/addresses/${postCode}`,
-        headers: { 'text': 'application/json' }
-    }
-    let res = await axios(config)
-    return res.data
-}
-
-
-async function makeRequestPostCodeId(id) {
-    const config = {
-        method: 'get',
-        url: `https://check-availability.broadband.triarom.co.uk/api/v1/address/${id}/products`,
-        headers: { 'text': 'application/json' }
-    }
-    let res = await axios(config)
-    console.log(res.data)
-    productsData.push(res.data)
-    console.log("done")
-    return res.data
-}
-
-var WrokPhonedata = [];
-var Apidata=[];
-var productsData=[];
-
-
-app.post("/webhook",express.json(),(request,response)=>{          //fulfillment mai bhi url mai /webhook lagana huga 
-    const agent=new WebhookClient({request:request,response:response});
-     
-
-    function welcome(agent){
-        agent.add("👋 Hello there! Thank you for reaching us 💡 Please use our bot assistant to verify your submission. You can request Live Support at any time if you have a question, request or concern 💬")
-        agent.add(new Suggestion("Get Live Support"))
-        agent.add(new Suggestion("Verify Submission"))
-        agent.add(new Suggestion("Submit NFT Project"))
-        agent.add(new Suggestion("Promote Nft Project"))
-    }
-
-    function verifySubmission(agent){
-        agent.add("Thank you for submitting your project on NFT Drops Calendar 🌟")
-        agent.add("Your project is now VERIFIED ✅ ")
-        agent.add("NFT Projects get reviewed and approved within:- 6 hours (Premium Listing) ⚡ - 3 days (Regular Listing) 🕒")
-        agent.add("We will send you a confirmation message as soon as your NFT project is approved!")
-        agent.add("Feel free to reach us should you have any question, request or concern.")
-        agent.add(new Suggestion("↩️ Back to Menu"))
-        agent.add(new Suggestion("💬 Get Live Support"))
-        agent.add(new Suggestion("Pay for Premium Listing 🔖"))
-        agent.add(new Suggestion("Book my Featured Spot 🌟"))   
-    }
-
-    function verifySubmissionFollowGetLivePremium(agent){
-        agent.add("Hello There !")
-        agent.add("This is Tiffany, Marketing Manager @nftdropscal")
-        agent.add("🔍 I just reviewed and approved your project in priority queue!")
-        agent.add("We can publish your listing as soon as you pay your Premium Listing fee (0.1 ETH).")
-        agent.add("Please send your payment to the following ERC20 wallet address 👇")
-        agent.add("0x9cD7C96873FD4c8F39852a2DAC4f94BabeCF770b")
-    }
-
-    function verifySubmissionFollowGetLiveSupport(agent){
-        agent.add("Hello There !")
-        agent.add("This is Ryan, Community Manager @nftdropscal")
-        agent.add("How can I help you ?")
-    }
+app.post("/webhook",express.json(),(request,response)=>{          //fulfillment mai bhi url mai /webhook lagana huga
     
-    // 
+    const agent = new WebhookClient({ request, response });
 
-    function FeaturedSpot(agent){
-        agent.add(new Image('https://www.linkpicture.com/q/Screenshot-from-2023-02-01-01-15-09.png'))
+  
+    function welcome(agent) {
+      agent.add(`Hola soy GuachiBOT (EMOJI), ¿Puedo ayudarte con nuestros servicios?`);
+      agent.add('¿Cuál es su nombre?');
+    }
+  
+    function name(agent){
+      let name = agent.parameters.person;
+      console.log(name.name)
+      agent.add(`Gracias, ${name.name}`);
+      agent.add('¿Nombre de empresa?')
     }
 
-    function getLiveSupport(agent){
-        agent.add("Hello There !")
-        agent.add("This is Ryan, Community Manager @nftdropscal")
-        agent.add("How can I help you ?")
+    function company(agent){
+      console.log(agent.parameters.any)      
+      agent.add('Necesito tu número de whatsapp');
     }
+
+    function whatsapp(agent){
+      console.log(agent.parameters['phone-number'])
+      agent.add("¿Tiene cuenta con nosotros?")
+    }
+
+    function WhatsappYes(agent){
+      agent.add(new Card({
+        title: `AYUDA SOPORTE`,
+        text: `(Contamos con un sistema de Ticketing para darte un soporte eficaz + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'https://whatsappmarketing.zendesk.com/hc/es/requests/new'
+      }));
+      
+      agent.add(new Card({
+        title: `CASO DE ÉXITO`,
+        text: `(Small text + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'https://www.whatsmarketing.es/galeria-casos-exito/'
+      }));
+
+      agent.add(new Card({
+        title: `¿Quiere ser Distribuidor?`,
+        text: `(Small text + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'https://www.whatsmarketing.es/distribuidores-api-whatsapp-marketing/'
+      }));  
     
-    function PromoteNftProject(agent){
-        agent.add("Looking to promote your NFT Collection? Check our top advertising services to help you boost your NFT Project's visibility 👇")
-        agent.add(new Suggestion("🌟  Website Promotion"))
-        agent.add(new Suggestion("🐦 Twitter Posts Package"))
-        agent.add(new Suggestion("↩️ Back to Menu"))
-        agent.add(new Suggestion("💬 Get Live Support"))
     }
 
-    function websitePromotion(agent){
-        agent.add(new Image('https://www.linkpicture.com/q/2_808.png'))
-        agent.add(new Image('https://www.linkpicture.com/q/3_365.png'))
-        agent.add(new Image('https://www.linkpicture.com/q/4_240.png'))
-        agent.add(new Suggestion("👍 Interested"))
-        agent.add(new Suggestion("👎 Not Interested"))
+    function WhatsappNo(agent){
+
+      agent.add(new Card({
+        title: `Hola`,
+        text: `un gusto poder conversar sobre nuestros servicios`,
+        buttonText: 'ir al sitio',
+        buttonUrl: ' whatsmarketing.es/servicios/'
+      }));  
+
+      agent.add(new Card({
+        title: `CASOS DE ÉXITO:`,
+        text: `(Small text + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: ' whatsmarketing.es/galeria-casos-exito/'
+      }));  
+
+      agent.add(new Card({
+        title: `REGISTARSE DEMO 18 Créditos sin Costo`,
+        text: `(Small text + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'whatsmarketing.es/registro-usuarios-whatsapp-marketing/'
+      }));
+
+      agent.add(new Card({
+        title: `SOLICITAR CITA COMERCIAL`,
+        text: `(Puedes elegir un día horario para concertar una reunión virtual vía Google Meet:`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'https://calendly.com/whatsMarketing'
+      }));
+
+      agent.add(new Card({
+        title: `COMPRAR CREDITOS`,
+        text: `(Small text + image before link website):`,
+        buttonText: 'ir al sitio',
+        buttonUrl: 'whatsmarketing.es/shop/'
+      }));
+
     }
 
-    function SubmitNftProject(agent){
-        agent.add(new Card({
-            title: 'Submit An NFT',
-            imageUrl: 'https://www.linkpicture.com/q/1_694.png',
-            buttonText: 'Submit  Nft Project',
-            buttonUrl: 'https://www.nftdropscalendar.com/submit-nft'
-          })
-        );  
-        agent.add(new Suggestion("↩️ Back to Menu"))
-        agent.add(new Suggestion("💬 Get Live Support"))
-    }
-
-    function WebPromoIntrested(agent){
-        agent.add("Hello there")
-        agent.add("This is Tiffany, Marketing Manager @nftdropscal")
-        agent.add("Could you please confirm which service are you interested in, and specify your desired period, so I can book you a spot?")
-    }
-
-    function WebPromoNotIntrested(agent){
-        agent.add("Fair enough!")
-        agent.add("Let us know if you have any other request or question, we'll be glad to assist you!")
-        agent.add(new Suggestion("↩️ Back to Menu"))
-        agent.add(new Suggestion("💬 Get Live Support"))
-    }
-
-    function TwitterPost(agent){
-        agent.add(new Image('https://www.linkpicture.com/q/5_204.png'))
-        agent.add(new Image('https://www.linkpicture.com/q/6_162.png'))
-        agent.add(new Suggestion("👍 Interested"))
-        agent.add(new Suggestion("👎 Not Interested"))
-    }
-
-    const delay = (delayInms) => {
-        return new Promise(resolve => setTimeout(resolve, delayInms));
-    }
-
-
-    let intentMap= new Map();
-    intentMap.set("Default Welcome Intent",welcome)
-    intentMap.set("verifySubmission",verifySubmission);
-    intentMap.set("verifySubmission -getLiveSupport",verifySubmissionFollowGetLiveSupport)
-    intentMap.set("verifySubmission - payPremium",verifySubmissionFollowGetLivePremium)
-    intentMap.set("getSupport",getLiveSupport)
-    intentMap.set("SubmitNftProject",SubmitNftProject)
-    intentMap.set("PromoteNftProject",PromoteNftProject)
-    intentMap.set("WebsitePromotion",websitePromotion)
-    intentMap.set("WebsitePromotion -Intrested",WebPromoIntrested)
-    intentMap.set("WebsitePromotion - NotIntrested",WebPromoNotIntrested)
-    intentMap.set("TwitterPost",TwitterPost)
-    intentMap.set("TwitterPost - intrested", WebPromoIntrested)
-    intentMap.set("TwitterPost - NotIntrested",WebPromoNotIntrested)
-    intentMap.set("verifySubmission -FeaturedSpot",FeaturedSpot)
-    agent.handleRequest(intentMap)
+    // Run the proper function handler based on the matched Dialogflow intent name
+    let intentMap = new Map();
+    intentMap.set('Default Welcome Intent', welcome);
+    intentMap.set('name',name);
+    intentMap.set('company name',company);
+    intentMap.set('whatsapp number',whatsapp)
+    intentMap.set('whatsapp number - yes',WhatsappYes)
+    intentMap.set('whatsapp number - no',WhatsappNo)
+    
+    
+    agent.handleRequest(intentMap);
+  
 })
 
 const port = process.env.PORT || 4000;
